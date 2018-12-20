@@ -75,6 +75,13 @@ class VerifyXmlRequest{
           $obj->Mensaje = $data["Body"]["VerificaSolicitudDescargaResponse"]["VerificaSolicitudDescargaResult"]["@attributes"]["Mensaje"];
           $obj->CodigoEstadoSolicitud = $data["Body"]["VerificaSolicitudDescargaResponse"]["VerificaSolicitudDescargaResult"]["@attributes"]["CodigoEstadoSolicitud"];
           $obj->NumeroCFDIs = $data["Body"]["VerificaSolicitudDescargaResponse"]["VerificaSolicitudDescargaResult"]["@attributes"]["NumeroCFDIs"];
+          if($obj->CodigoEstadoSolicitud == 3){
+            $data = $data["Body"]["VerificaSolicitudDescargaResponse"]["VerificaSolicitudDescargaResult"];
+            $i = 0;
+            foreach($data->children() as $idPaquete) { 
+              $obj["idPaquete"][$i++] = $idPaquete; 
+            } 
+          }
         }
         return $obj;
     }
