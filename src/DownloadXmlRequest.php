@@ -80,4 +80,9 @@ class DownloadXmlRequest{
         $pem = "-----BEGIN ".$type."-----\n".$pem."-----END ".$type."-----\n";
         return $pem;
      }
+
+     public static function saveBase64File($data, $filename){
+        $data = base64_decode($data);
+        file_put_contents($filename, $data);
+     }
 }

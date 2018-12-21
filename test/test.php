@@ -23,6 +23,7 @@ $resultado3 = verifica::soapRequest($cert, $key, $resultado->token, $rfc, $idSol
 var_dump($resultado3);
 
 $resultado4 = descarga::soapRequest($cert, $key, $resultado->token, $rfc, $idPaquete);
+descarga::saveBase64File($resultado4->Paquete, $idPaquete.".zip");
 var_dump($resultado4);
 
 ?>
