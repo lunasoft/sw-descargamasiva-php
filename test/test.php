@@ -12,6 +12,7 @@ $fechaInicial = '2018-06-02T00:00:00';
 $fechaFinal = '2018-06-02T12:59:59';
 $TipoSolicitud = 'CFDI';
 $idSolicitud = '1fb832ff-6a25-4616-8ca8-04478690cc29';
+$idPaquete = '1fb832ff-6a25-4616-8ca8-04478690cc29_01';
 $resultado = loginSAT::soapRequest($cert,$key);
 var_dump($resultado);
 
@@ -20,5 +21,8 @@ var_dump($resultado2);
 
 $resultado3 = verifica::soapRequest($cert, $key, $resultado->token, $rfc, $idSolicitud);
 var_dump($resultado3);
+
+$resultado4 = descarga::soapRequest($cert, $key, $resultado->token, $rfc, $idPaquete);
+var_dump($resultado4);
 
 ?>
