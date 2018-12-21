@@ -4,8 +4,8 @@ use Exception;
 
 class LoginXmlRequest{
     public static function soapRequest($cert, $keyPEM){
-        $xml_post_string = LoginXmlRequest::getSoapBody($cert, $keyPEM);
-        $headers = LoginXmlRequest::headers($xml_post_string);
+        $xmlString = LoginXmlRequest::getSoapBody($cert, $keyPEM);
+        $headers = Utils::headers($xmlString, 'http://DescargaMasivaTerceros.gob.mx/IAutenticacion/Autentica', null);
         $ch = curl_init();
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
             curl_setopt($ch, CURLOPT_URL, 'https://cfdidescargamasivasolicitud.clouda.sat.gob.mx/Autenticacion/Autenticacion.svc');
@@ -17,7 +17,7 @@ class LoginXmlRequest{
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
             curl_setopt($ch, CURLOPT_TIMEOUT_MS, 50000);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_post_string);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlString);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             set_time_limit(0);
             $soap = curl_exec($ch);
@@ -28,12 +28,12 @@ class LoginXmlRequest{
         if ($err) {
             throw new Exception("cURL Error #:" . $err);
         } else{
-            return LoginXmlRequest::response(LoginXmlRequest::xml2array($soap));
+            return LoginXmlRequest::response(Utils::xmlToArray($soap));
         }
     }
     
     public static function getSoapBody($cert, $keyPEM){
-      $uuid = "uuid-".LoginXmlRequest::gen_uuid()."-1";
+      $uuid = "uuid-".Utils::genUuid()."-1";
       $fecha_inicial = time() - date('Z');
       $fecha_final = $fecha_inicial + (60*5);
       $data = '<u:Timestamp xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" u:Id="_0"><u:Created>'.date("Y-m-d\TH:i:s\.v\Z", $fecha_inicial).'</u:Created><u:Expires>'.date("Y-m-d\TH:i:s\.v\Z", $fecha_final).'</u:Expires></u:Timestamp>';
@@ -42,21 +42,6 @@ class LoginXmlRequest{
       openssl_sign($dataToSign, $digs, $keyPEM, OPENSSL_ALGO_SHA1);
       $xml = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"><s:Header><o:Security s:mustUnderstand="1" xmlns:o="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"><u:Timestamp u:Id="_0"><u:Created>'.date("Y-m-d\TH:i:s\.v\Z", $fecha_inicial).'</u:Created><u:Expires>'.date("Y-m-d\TH:i:s\.v\Z", $fecha_final).'</u:Expires></u:Timestamp><o:BinarySecurityToken u:Id="'.$uuid.'" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">'.base64_encode($cert).'</o:BinarySecurityToken><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_0"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>'.$digestValue.'</DigestValue></Reference></SignedInfo><SignatureValue>'.base64_encode($digs).'</SignatureValue><KeyInfo><o:SecurityTokenReference><o:Reference ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" URI="#'.$uuid.'"/></o:SecurityTokenReference></KeyInfo></Signature></o:Security></s:Header><s:Body><Autentica xmlns="http://DescargaMasivaTerceros.gob.mx"/></s:Body></s:Envelope>';
       return $xml;
-    }
-
-    public static function headers($xml_post_string){
-      return  array(
-                   "Content-type: text/xml;charset=\"utf-8\"",
-                   "Accept: text/xml",
-                   "Cache-Control: no-cache",
-                   "Pragma: no-cache",
-                   "SOAPAction: http://DescargaMasivaTerceros.gob.mx/IAutenticacion/Autentica", 
-                   "Content-length: ".strlen($xml_post_string),
-               );
-    }
-    
-    public static function xml2array($xml){
-        return json_decode(json_encode(simplexml_load_string(str_replace("s:", "", str_replace("o:","", str_replace("u:","",'<?xml version="1.0" encoding="utf-8"?>'.$xml))))),TRUE);
     }
     
     public static function response($data){
@@ -71,18 +56,4 @@ class LoginXmlRequest{
         return $obj;
     }
     
-    public static function gen_uuid() {
-      return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-          mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-          mt_rand( 0, 0xffff ),
-          mt_rand( 0, 0x0fff ) | 0x4000,
-          mt_rand( 0, 0x3fff ) | 0x8000,
-          mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
-      );
-    }
-    public static function der2pem($der_data, $type='CERTIFICATE') {
-        $pem = chunk_split(base64_encode($der_data), 64, "\n");
-        $pem = "-----BEGIN ".$type."-----\n".$pem."-----END ".$type."-----\n";
-        return $pem;
-     }
 }

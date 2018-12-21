@@ -3,6 +3,7 @@ require_once '../SWInclude.php';
 use src\LoginXmlRequest as loginSAT;
 use src\RequestXmlRequest as solicita;
 use src\VerifyXmlRequest as verifica;
+use src\Utils as util;
 
 
 $cert = file_get_contents('resources/cer.cer');
@@ -13,17 +14,17 @@ $fechaFinal = '2018-06-02T12:59:59';
 $TipoSolicitud = 'CFDI';
 $idSolicitud = '1fb832ff-6a25-4616-8ca8-04478690cc29';
 $idPaquete = '1fb832ff-6a25-4616-8ca8-04478690cc29_01';
-$resultado = loginSAT::soapRequest($cert,$key);
-var_dump($resultado);
+$ResponseAuth = loginSAT::soapRequest($cert,$key);
+var_dump($ResponseAuth);
 
-$resultado2 = solicita::soapRequest($cert, $key, $resultado->token, $rfc, $fechaInicial, $fechaFinal, $TipoSolicitud);
-var_dump($resultado2);
+$ResponseRequest = solicita::soapRequest($cert, $key, $resultado->token, $rfc, $fechaInicial, $fechaFinal, $TipoSolicitud);
+var_dump($ResponseRequest);
 
-$resultado3 = verifica::soapRequest($cert, $key, $resultado->token, $rfc, $idSolicitud);
-var_dump($resultado3);
+$ResponseVerify = verifica::soapRequest($cert, $key, $resultado->token, $rfc, $idSolicitud);
+var_dump($ResponseVerify);
 
-$resultado4 = descarga::soapRequest($cert, $key, $resultado->token, $rfc, $idPaquete);
-descarga::saveBase64File($resultado4->Paquete, $idPaquete.".zip");
-var_dump($resultado4);
+$ResponseDownload = descarga::soapRequest($cert, $key, $resultado->token, $rfc, $idPaquete);
+util::saveBase64File($ResponseDownload->Paquete, $idPaquete.".zip");
+var_dump($ResponseDownload);
 
 ?>
