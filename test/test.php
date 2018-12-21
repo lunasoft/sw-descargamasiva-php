@@ -1,8 +1,8 @@
 <?php
 require_once '../SWInclude.php';
-use SWServices\DescMass\LoginXmlRequest as loginSAT;
-use SWServices\DescMass\RequestXmlRequest as solicita;
-use SWServices\DescMass\VerifyXmlRequest as verifica;
+use src\LoginXmlRequest as loginSAT;
+use src\RequestXmlRequest as solicita;
+use src\VerifyXmlRequest as verifica;
 
 
 $cert = file_get_contents('resources/cer.cer');
