@@ -17,13 +17,13 @@ $idPaquete = '1fb832ff-6a25-4616-8ca8-04478690cc29_01';
 $ResponseAuth = loginSAT::soapRequest($cert,$key);
 var_dump($ResponseAuth);
 
-$ResponseRequest = solicita::soapRequest($cert, $key, $resultado->token, $rfc, $fechaInicial, $fechaFinal, $TipoSolicitud);
+$ResponseRequest = solicita::soapRequest($cert, $key, $ResponseAuth->token, $rfc, $fechaInicial, $fechaFinal, $TipoSolicitud);
 var_dump($ResponseRequest);
 
-$ResponseVerify = verifica::soapRequest($cert, $key, $resultado->token, $rfc, $idSolicitud);
+$ResponseVerify = verifica::soapRequest($cert, $key, $ResponseAuth->token, $rfc, $idSolicitud);
 var_dump($ResponseVerify);
 
-$ResponseDownload = descarga::soapRequest($cert, $key, $resultado->token, $rfc, $idPaquete);
+$ResponseDownload = descarga::soapRequest($cert, $key, $ResponseAuth->token, $rfc, $idPaquete);
 util::saveBase64File($ResponseDownload->Paquete, $idPaquete.".zip");
 var_dump($ResponseDownload);
 
